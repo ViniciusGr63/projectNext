@@ -1,6 +1,6 @@
-
 "use client";
 import React, { useState, useEffect } from "react";
+import "./PaginaCurriculos.css"; // Estilos externos
 
 export default function PaginaCurriculos() {
   const [curriculos, setCurriculos] = useState([]);
@@ -21,19 +21,15 @@ export default function PaginaCurriculos() {
     projetos: "",
   });
 
-  // Carregar todos os currículos
   const getAllCurriculos = () => {
-    fetch("/api/cvs'")
+    fetch("/api/cvs")
       .then((res) => res.json())
-      .then((data) => {
-        setCurriculos(data);
-      })
+      .then((data) => setCurriculos(data))
       .catch((err) => console.error("Erro ao carregar currículos:", err));
   };
 
-  // Carregar currículo pelo id
   const getCurriculoById = (id) => {
-    fetch('/api/cvs/${id}')
+    fetch(`/api/cvs/${id}`)
       .then((res) => res.json())
       .then((curriculo) => {
         setCurriculoSelecionado(curriculo);
@@ -42,7 +38,6 @@ export default function PaginaCurriculos() {
       .catch((err) => console.error("Erro ao carregar currículo:", err));
   };
 
-  // Deletar currículo
   const deletarCurriculo = (id) => {
     if (window.confirm("Tem certeza que deseja excluir este currículo?")) {
       fetch(`/api/cvs/${id}`, { method: "DELETE" })
@@ -59,7 +54,6 @@ export default function PaginaCurriculos() {
     }
   };
 
-  // Preparar formulário para edição
   const prepararEdicao = () => {
     if (!curriculoSelecionado) return;
     setModoEdicao(true);
@@ -69,16 +63,15 @@ export default function PaginaCurriculos() {
       phone: curriculoSelecionado.phone,
       loc: curriculoSelecionado.loc,
       email: curriculoSelecionado.email,
-      formacoes: curriculoSelecionado.formacoes.join(","),
-      objetivos: curriculoSelecionado.objetivos.join(","),
-      competencias: curriculoSelecionado.competencias.join(","),
-      linguagens: curriculoSelecionado.linguagens.join(","),
-      projetos: curriculoSelecionado.projetos.join(","),
+      formacoes: curriculoSelecionado.formacoes.join(", "),
+      objetivos: curriculoSelecionado.objetivos.join(", "),
+      competencias: curriculoSelecionado.competencias.join(", "),
+      linguagens: curriculoSelecionado.linguagens.join(", "),
+      projetos: curriculoSelecionado.projetos.join(", "),
     });
     setMostrarFormulario(true);
   };
 
-  // Handle formulário inputs
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
@@ -87,7 +80,6 @@ export default function PaginaCurriculos() {
     }));
   };
 
-  // Enviar novo currículo ou edição
   const enviarNovoCurriculo = (e) => {
     e.preventDefault();
 
@@ -104,7 +96,7 @@ export default function PaginaCurriculos() {
     };
 
     if (modoEdicao && idCurriculoEditando !== null) {
-      fetch(`/api/cvs/${id}`, {
+      fetch(`/api/cvs/${idCurriculoEditando}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dados),
@@ -112,22 +104,7 @@ export default function PaginaCurriculos() {
         .then((res) => {
           if (res.ok) {
             alert("Currículo atualizado com sucesso!");
-            setModoEdicao(false);
-            setIdCurriculoEditando(null);
-            setFormData({
-              name: "",
-              phone: "",
-              loc: "",
-              email: "",
-              formacoes: "",
-              objetivos: "",
-              competencias: "",
-              linguagens: "",
-              projetos: "",
-            });
-            setMostrarFormulario(false);
-            setCurriculoSelecionado(null);
-            getAllCurriculos();
+            resetarFormulario();
           } else {
             alert("Erro ao atualizar currículo.");
           }
@@ -142,19 +119,7 @@ export default function PaginaCurriculos() {
         .then((res) => res.json())
         .then(() => {
           alert("Currículo adicionado com sucesso!");
-          setFormData({
-            name: "",
-            phone: "",
-            loc: "",
-            email: "",
-            formacoes: "",
-            objetivos: "",
-            competencias: "",
-            linguagens: "",
-            projetos: "",
-          });
-          setMostrarFormulario(false);
-          getAllCurriculos();
+          resetarFormulario();
         })
         .catch((err) => {
           console.error("Erro ao adicionar currículo:", err);
@@ -163,7 +128,6 @@ export default function PaginaCurriculos() {
     }
   };
 
-  // Mostrar formulário para adicionar novo currículo
   const mostrarFormNovo = () => {
     setModoEdicao(false);
     setIdCurriculoEditando(null);
@@ -182,79 +146,31 @@ export default function PaginaCurriculos() {
     setCurriculoSelecionado(null);
   };
 
+  const resetarFormulario = () => {
+    setFormData({
+      name: "",
+      phone: "",
+      loc: "",
+      email: "",
+      formacoes: "",
+      objetivos: "",
+      competencias: "",
+      linguagens: "",
+      projetos: "",
+    });
+    setMostrarFormulario(false);
+    setCurriculoSelecionado(null);
+    setModoEdicao(false);
+    setIdCurriculoEditando(null);
+    getAllCurriculos();
+  };
+
   useEffect(() => {
     getAllCurriculos();
   }, []);
 
   return (
     <>
-      <style jsx>{`
-        .itens {
-          margin-bottom: 20px;
-        }
-        .curriculo-item {
-          cursor: pointer;
-          padding: 10px;
-          margin: 5px;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-          transition: background-color 0.3s;
-        }
-        .curriculo-item:hover {
-          background-color: lightgray;
-        }
-        .exibirConteudo {
-          padding: 20px;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-          margin-top: 20px;
-        }
-        .novocurriculo {
-          margin-top: 20px;
-          padding: 20px;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-          background-color: #f9f9f9;
-        }
-        .novocurriculo input,
-        .novocurriculo textarea {
-          width: 100%;
-          padding: 8px;
-          margin: 10px 0;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-        }
-        .novocurriculo button {
-          padding: 10px 15px;
-          background-color: #4caf50;
-          color: white;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-        }
-        .novocurriculo button:hover {
-          background-color: #45a049;
-        }
-        button {
-          cursor: pointer;
-        }
-        .btn-editar {
-          background-color: orange;
-          color: white;
-          padding: 10px;
-          border: none;
-          border-radius: 5px;
-          margin-right: 10px;
-        }
-        .btn-excluir {
-          background-color: red;
-          color: white;
-          padding: 10px;
-          border: none;
-          border-radius: 5px;
-        }
-      `}</style>
-
       <header>
         <h1>Página de Currículos</h1>
       </header>
@@ -363,18 +279,10 @@ export default function PaginaCurriculos() {
       {curriculoSelecionado && !mostrarFormulario && (
         <div className="exibirConteudo">
           <h2>Detalhes do Currículo</h2>
-          <p>
-            <strong>Nome:</strong> {curriculoSelecionado.name}
-          </p>
-          <p>
-            <strong>Telefone:</strong> {curriculoSelecionado.phone}
-          </p>
-          <p>
-            <strong>Localização:</strong> {curriculoSelecionado.loc}
-          </p>
-          <p>
-            <strong>Email:</strong> {curriculoSelecionado.email}
-          </p>
+          <p><strong>Nome:</strong> {curriculoSelecionado.name}</p>
+          <p><strong>Telefone:</strong> {curriculoSelecionado.phone}</p>
+          <p><strong>Localização:</strong> {curriculoSelecionado.loc}</p>
+          <p><strong>Email:</strong> {curriculoSelecionado.email}</p>
 
           <h3>Formações</h3>
           <ul>
@@ -382,24 +290,28 @@ export default function PaginaCurriculos() {
               <li key={i}>{item}</li>
             ))}
           </ul>
+
           <h3>Objetivos</h3>
           <ul>
             {curriculoSelecionado.objetivos.map((item, i) => (
               <li key={i}>{item}</li>
             ))}
           </ul>
+
           <h3>Competências</h3>
           <ul>
             {curriculoSelecionado.competencias.map((item, i) => (
               <li key={i}>{item}</li>
             ))}
           </ul>
+
           <h3>Linguagens</h3>
           <ul>
             {curriculoSelecionado.linguagens.map((item, i) => (
               <li key={i}>{item}</li>
             ))}
           </ul>
+
           <h3>Projetos</h3>
           <ul>
             {curriculoSelecionado.projetos.map((item, i) => (
@@ -408,15 +320,8 @@ export default function PaginaCurriculos() {
           </ul>
 
           <div style={{ marginTop: 20 }}>
-            <button className="btn-editar" onClick={prepararEdicao}>
-              Editar Currículo
-            </button>
-            <button
-              className="btn-excluir"
-              onClick={() => deletarCurriculo(curriculoSelecionado.id)}
-            >
-              Excluir Currículo
-            </button>
+            <button className="btn-editar" onClick={prepararEdicao}>Editar Currículo</button>
+            <button className="btn-excluir" onClick={() => deletarCurriculo(curriculoSelecionado.id)}>Excluir Currículo</button>
           </div>
         </div>
       )}
