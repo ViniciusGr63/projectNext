@@ -1,25 +1,27 @@
-
-const Cv = require('../models/CvModels');
+const prisma = require('../../prismaClient');
 
 class CvRepository {
   async create(data) {
-    return Cv.create({ data });
+    return prisma.curriculo.create({ data });
   }
 
   async findAll() {
-    return Cv.findMany();
+    return prisma.curriculo.findMany();
   }
 
   async findById(id) {
-    return Cv.findUnique({ where: { id } });
+    return prisma.curriculo.findUnique({ where: { id } });
   }
 
   async update(id, data) {
-    return Cv.update({ where: { id }, data });
+    return prisma.curriculo.update({
+      where: { id },
+      data,
+    });
   }
 
   async delete(id) {
-    return Cv.delete({ where: { id } });
+    return prisma.curriculo.delete({ where: { id } });
   }
 }
 

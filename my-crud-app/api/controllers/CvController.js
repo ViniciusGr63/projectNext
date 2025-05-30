@@ -11,14 +11,20 @@ class CvController {
     }
   }
 
-  async getAll(req, res) {
-    try {
-      const cvs = await CvService.getAllCvs();
-      res.status(200).json(cvs);
-    } catch (error) {
-      res.status(500).json({ error: 'Erro ao buscar currículos' });
-    }
+ async getAll(req, res) {
+  try {
+    console.log('Recebida requisição para listar todos os currículos');
+    
+    const cvs = await CvService.getAllCvs();
+    
+    console.log(`Foram encontrados ${cvs.length} currículos`);
+    res.status(200).json(cvs);
+  } catch (error) {
+    console.error('Erro ao buscar currículos:', error);
+    res.status(500).json({ error: 'Erro ao buscar currículos' });
   }
+}
+
 
   async getById(req, res) {
     try {
